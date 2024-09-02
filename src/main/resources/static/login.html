@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body class="bg-gray-700">
+<div>
+    <section class="min-h-screen flex items-center justify-center">
+        <div class="container py-5">
+            <div class="flex justify-center">
+                <div class="w-full max-w-md">
+                    <div class="bg-white shadow-md rounded-lg">
+                        <div class="p-6">
+                            <h4 class="text-2xl font-semibold text-gray-800 mb-4">Login</h4>
+                            <p class="mb-4 text-gray-600">Please enter your credentials</p>
+
+                            <div class="mb-4">
+                                <label for="identifier" class="block text-gray-700">Email / Username / Phone Number</label>
+                                <input type="text" id="identifier" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" placeholder="Email, Username, or Phone Number" />
+                                <span id="identifierError" class="text-red-500 text-sm"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password" class="block text-gray-700">Password</label>
+                                <input type="password" id="password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" placeholder="Password" />
+                                <span id="passwordError" class="text-red-500 text-sm"></span>
+                            </div>
+
+                            <div class="g-recaptcha mb-4" data-sitekey="6Le1K_4ZAAAAAGRcK6wEohWir7VFMHC6SjUJedqp"></div>
+                            <span id="captchaError" class="text-red-500 text-sm"></span>
+
+                            <div class="flex justify-end">
+                                <button type="submit" id="login" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">Login</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<script>
+    window.onload = function () {
+        document.getElementById('login').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const identifier = document.getElementById("identifier").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const captchaResponse = grecaptcha.getResponse();
+
+            // Reset error messages
+            document.getElementById("identifierError").innerText = '';
+            document.getElementById("passwordError").innerText = '';
+            document.getElementById("captchaError").innerText = '';
+
+            let valid = true;
+
+            // Validate identifier
+            if (!identifier) {
+                document.getElementById("identifierError").innerText = 'Identifier is mandatory';
+                valid = false;
+            }
+
+            // Validate password
+            if (!password) {
+                document.getElementById("passwordError").innerText = 'Password is mandatory';
+                valid = false;
+            }
+
+            // Validate ReCAPTCHA
+            if (!captchaResponse) {
+                document.getElementById("captchaError").innerText = 'Please complete the ReCAPTCHA';
+                valid = false;
+            }
+
+            if (!valid) {
+                return;
+            }
+
+            const url = `http://localhost:8080/api/auth/login`;
+            const data = {
+                identifier,
+                password,
+                captchaResponse
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message
+                        }).then(() => {
+                            window.location.href = "/home";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Login failed: ' + data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Login failed'
+                    });
+                });
+        });
+    };
+</script>
+</body>
+</html>
