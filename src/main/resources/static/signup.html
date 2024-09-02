@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body class="bg-gray-700">
+<div>
+    <section class="min-h-screen flex items-center justify-center">
+        <div class="container py-5">
+            <div class="flex justify-center">
+                <div class="w-full max-w-md">
+                    <div class="bg-white shadow-md rounded-lg">
+                        <div class="p-6">
+                            <h4 class="text-2xl font-semibold text-gray-800 mb-4">Signup</h4>
+                            <p class="mb-4 text-gray-600">Please fill in the information below</p>
+
+                            <div class="mb-4">
+                                <label for="username" class="block text-gray-700">Username</label>
+                                <input type="text" id="username" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" placeholder="Username" />
+                                <span id="usernameError" class="text-red-500 text-sm"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="email" class="block text-gray-700">Email</label>
+                                <input type="email" id="email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" placeholder="Email" />
+                                <span id="emailError" class="text-red-500 text-sm"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="phoneNumber" class="block text-gray-700">Phone Number</label>
+                                <input type="text" id="phoneNumber" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" placeholder="Phone Number" />
+                                <span id="phoneNumberError" class="text-red-500 text-sm"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password" class="block text-gray-700">Password</label>
+                                <input type="password" id="password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" placeholder="Password" />
+                                <span id="passwordError" class="text-red-500 text-sm"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="confirmPassword" class="block text-gray-700">Confirm Password</label>
+                                <input type="password" id="confirmPassword" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300" placeholder="Confirm Password" />
+                                <span id="confirmPasswordError" class="text-red-500 text-sm"></span>
+                            </div>
+
+                            <div class="g-recaptcha mb-4" data-sitekey="6Le1K_4ZAAAAAGRcK6wEohWir7VFMHC6SjUJedqp"></div>
+                            <span id="captchaError" class="text-red-500 text-sm"></span>
+
+                            <div class="flex justify-end">
+                                <button type="submit" id="signup" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">Signup</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<script>
+    window.onload = function () {
+        document.getElementById('signup').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const phoneNumber = document.getElementById("phoneNumber").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const confirmPassword = document.getElementById("confirmPassword").value.trim();
+            const captchaResponse = grecaptcha.getResponse();
+
+            // Reset error messages
+            document.getElementById("usernameError").innerText = '';
+            document.getElementById("emailError").innerText = '';
+            document.getElementById("phoneNumberError").innerText = '';
+            document.getElementById("passwordError").innerText = '';
+            document.getElementById("confirmPasswordError").innerText = '';
+            document.getElementById("captchaError").innerText = '';
+
+            let valid = true;
+
+            // Validate fields
+            if (!username) {
+                document.getElementById("usernameError").innerText = 'Username is mandatory';
+                valid = false;
+            }
+
+            if (!email) {
+                document.getElementById("emailError").innerText = 'Email is mandatory';
+                valid = false;
+            } else {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById("emailError").innerText = 'Email should be valid';
+                    valid = false;
+                }
+            }
+
+            if (!phoneNumber) {
+                document.getElementById("phoneNumberError").innerText = 'Phone number is mandatory';
+                valid = false;
+            } else {
+                const phoneRegex = /^(\+98[0-9]{10}|09[0-9]{9})$/;
+                if (!phoneRegex.test(phoneNumber)) {
+                    document.getElementById("phoneNumberError").innerText = 'Invalid phone number format';
+                    valid = false;
+                }
+            }
+
+            if (!password) {
+                document.getElementById("passwordError").innerText = 'Password is mandatory';
+                valid = false;
+            } else {
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).{6,}$/;
+                if (!passwordRegex.test(password)) {
+                    document.getElementById("passwordError").innerText = 'Password must be at least 6 characters long, include an uppercase letter, a lowercase letter, a digit, and a special character';
+                    valid = false;
+                }
+            }
+
+            if (!confirmPassword) {
+                document.getElementById("confirmPasswordError").innerText = 'Confirm Password is mandatory';
+                valid = false;
+            } else if (password !== confirmPassword) {
+                document.getElementById("confirmPasswordError").innerText = 'Passwords do not match';
+                valid = false;
+            }
+
+            if (!captchaResponse) {
+                document.getElementById("captchaError").innerText = 'Please complete the ReCAPTCHA';
+                valid = false;
+            }
+
+            if (!valid) {
+                return;
+            }
+
+            const url = `http://localhost:8080/api/auth/signup`;
+            const data = {
+                username,
+                email,
+                phoneNumber,
+                password,
+                confirmPassword,
+                captchaResponse
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        throw new Error('Signup failed');
+                    }
+                })
+                .then(message => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: message
+                    });
+                    window.location.href = `login.html`;
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message
+                    });
+                });
+        });
+    };
+</script>
+</body>
+</html>
